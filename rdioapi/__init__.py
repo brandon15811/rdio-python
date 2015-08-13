@@ -194,7 +194,7 @@ class Rdio(object):
       api_response = json.loads(content) or {}
       self._store['token_type'] = api_response.get('token_type')
       self._store['access_token'] = api_response.get('access_token')
-      self._store['refresh_token'] = api_response.get('refresh_token')
+      #self._store['refresh_token'] = api_response.get('refresh_token')
       expires = api_response.get('expires_in') + time.time()
       self._store['access_token_expires'] = expires
       LOGGER.debug('Successfully authenticated')
@@ -213,6 +213,20 @@ class Rdio(object):
     request = urllib2.Request(url, data=body, headers=headers)
     response = urllib2.urlopen(request)
     return response.code, response.read()
+
+  def get_client_credentials(self):
+    """
+    Gets client credentials
+
+    Gets anonymous OAuth credentials
+    """
+    if self._store.authenticating or self._store.authenticated:
+      LOGGER.info('Beginning authentication while already logged in')
+      self._store.logout()
+
+    LOGGER.debug('Requesting a new client credential')
+    body = urllib.urlencode({'grant_type':'client_credentials'})
+    self._check_token(body)
 
   def begin_authentication(self):
     """
@@ -297,8 +311,8 @@ class Rdio(object):
     args['client_id'] = self.client_id
     access_token = self._store.access_token
     refresh_token = self._store.refresh_token
-    if access_token is None and refresh_token is not None:
-      self._refresh_token()
+    if access_token is None: # and refresh_token is not None:
+      self.get_client_credentials()
     body = urllib.urlencode(args)
     return self._request(self.urls['api_endpoint'], body)
 
