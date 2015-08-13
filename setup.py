@@ -8,7 +8,7 @@ This also includes a command-line tool rdio-call for making API calls.'''
 
 setup(
     name='Rdio',
-    version='0.3.0',
+    version='0.3.1',
 
     description='A Python wrapper library for the Rdio web services API',
     long_description=long_description,
